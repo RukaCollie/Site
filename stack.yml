@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Template to create the resources necessary for hosting a simple personal static website
+Parameters:
+  DomainName:
+    Description: Name of domain to bind hosted zone to (do not include "www.")
+    Type: String
+    Default: colliepa.ws
+  Region:
+    Description: Default region to locate resources into
+    Type: String
+    Default: ap-southeast-2
+  HostedZoneId:
+    Description: Hosted zone ID for S3 buckets in this region
+    Type: String
+    Default: Z1WCIGYICN2BYD
+  VpcCidrBlock:
+    Description: CIDR Block to allocate VPC
+    Type: String
+    Default: 10.0.0.0/16
+Resources:
+  # may not need?
+  Vpc:
+    Type: AWS::EC2::VPC
+    Description: Test VPC (probably unnecessary right now)
+    Properties: 
+      CidrBlock: !Ref VpcCidrBlock
+
+  # may not need?
+  Dns: 
+    Type: AWS::Route53::HostedZone
+    Properties: 
+      HostedZoneConfig: 
+        Comment: Hosted zone for static site
+      Name: !Ref DomainName
+
+  RecordSet:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Sub ${DomainName}.
+      Comment: DNS name for static S3
+      RecordSets:
+      - Name: !Ref DomainName
+        Type: A
+        AliasTarget:
+          DNSName: !Sub s3-website-${Region}.amazonaws.com
+          HostedZoneId: !Ref HostedZoneId
+      - Name: !Sub www.${DomainName}
+        Type: CNAME
+        TTL: 900
+        ResourceRecords:
+        - !GetAtt WwwRootS3Bucket.DomainName
+
+  # note: sigh, public buckets don't support HTTPS SSL/TLS so you'll need a cloudfront
+  # https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/RoutingToS3Bucket.html
+  RootS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Ref DomainName
+      WebsiteConfiguration:
+        IndexDocument: index.html
+  WwwRootS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Sub www.${DomainName}
+      WebsiteConfiguration:
+        RedirectAllRequestsTo:
+          HostName: !Ref RootS3Bucket
