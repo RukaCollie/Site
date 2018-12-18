@@ -42,7 +42,7 @@ Resources:
       - Name: !Ref DomainName
         Type: A
         AliasTarget:
-          DNSName: !Sub s3-website-${Region}.amazonaws.com
+          DNSName: !Sub ${DomainName}.s3-website-${Region}.amazonaws.com
           HostedZoneId: !Ref HostedZoneId
       - Name: !Sub www.${DomainName}
         Type: CNAME
