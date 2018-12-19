@@ -5,7 +5,7 @@ Parameters:
     Description: Name of domain to bind hosted zone to (do not include "www.")
     Type: String
     Default: colliepa.ws
-  Region:
+  Region: #TODO use preconfigured region
     Description: Default region to locate resources into
     Type: String
     Default: ap-southeast-2
@@ -42,7 +42,7 @@ Resources:
       - Name: !Ref DomainName
         Type: A
         AliasTarget:
-          DNSName: !Sub ${DomainName}.s3-website-${Region}.amazonaws.com
+          DNSName: !Sub s3-website-${Region}.amazonaws.com
           HostedZoneId: !Ref HostedZoneId
       - Name: !Sub www.${DomainName}
         Type: CNAME
@@ -54,6 +54,7 @@ Resources:
   # https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/RoutingToS3Bucket.html
   RootS3Bucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
     Properties:
       AccessControl: PublicRead
       BucketName: !Ref DomainName
@@ -61,6 +62,7 @@ Resources:
         IndexDocument: index.html
   WwwRootS3Bucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
     Properties:
       AccessControl: PublicRead
       BucketName: !Sub www.${DomainName}
