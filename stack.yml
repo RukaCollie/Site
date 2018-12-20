@@ -12,7 +12,7 @@ Parameters:
   HostedZoneId:
     Description: Hosted zone ID for S3 buckets in this region
     Type: String
-    Default: Z1WCIGYICN2BYD
+    Default: Z2FDTNDATAQYW2
   VpcCidrBlock:
     Description: CIDR Block to allocate VPC
     Type: String
