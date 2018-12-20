@@ -42,7 +42,7 @@ Resources:
       - Name: !Ref DomainName
         Type: A
         AliasTarget:
-          DNSName: !Sub s3-website-${Region}.amazonaws.com
+          DNSName: !GetAtt CloudfrontDistribution.DomainName
           HostedZoneId: !Ref HostedZoneId
       - Name: !Sub www.${DomainName}
         Type: CNAME
@@ -87,3 +87,35 @@ Resources:
                 - !Ref RootS3Bucket
                 - /*
       Bucket: !Ref RootS3Bucket
+
+  CloudfrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+        - DomainName: !GetAtt RootS3Bucket.DomainName
+          Id: RootS3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: # TODO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
+        Enabled: true
+        Comment: Cloudfront distribution for HTTPS support
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - DELETE
+          - GET
+          - HEAD
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+          Compress: true
+          TargetOriginId: RootS3Origin
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: allow-all
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        ViewerCertificate: # TODO: potentially change this to ACM cert
+          CloudFrontDefaultCertificate: true
