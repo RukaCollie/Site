@@ -11,7 +11,7 @@ Parameters:
     Type: String
   HostedZoneId:
     Description: Hosted zone ID for S3 buckets in this region
-    Type: AWS::Route53::HostedZone::Id
+    Type: String
     Default: Z2FDTNDATAQYW2
   VpcCidrBlock:
     Description: CIDR Block to allocate VPC
