@@ -1,22 +1,23 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Template to create the resources necessary for hosting a simple personal static website
+
 Parameters:
   DomainName:
     Description: Name of domain to bind hosted zone to (do not include "www.")
     Type: String
     Default: colliepa.ws
-  Region: #TODO use preconfigured region
-    Description: Default region to locate resources into
+  DomainCertificate:
+    Description: ARN of ACM certificate fort the domain to host
     Type: String
-    Default: ap-southeast-2
   HostedZoneId:
     Description: Hosted zone ID for S3 buckets in this region
-    Type: String
+    Type: AWS::Route53::HostedZone::Id
     Default: Z2FDTNDATAQYW2
   VpcCidrBlock:
     Description: CIDR Block to allocate VPC
     Type: String
     Default: 10.0.0.0/16
+
 Resources:
   # may not need?
   Vpc:
@@ -50,8 +51,6 @@ Resources:
         ResourceRecords:
         - !GetAtt WwwRootS3Bucket.DomainName
 
-  # note: sigh, public buckets don't support HTTPS SSL/TLS so you'll need a cloudfront
-  # https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/RoutingToS3Bucket.html
   RootS3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
@@ -88,12 +87,6 @@ Resources:
                 - /*
       Bucket: !Ref RootS3Bucket
 
-  DomainCertificate:
-    Type: AWS::CertificateManager::Certificate
-    Properties: 
-      DomainName: !Ref DomainName
-      ValidationMethod: DNS
-
   CloudfrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -120,8 +113,10 @@ Resources:
             QueryString: true
             Cookies:
               Forward: none
-          ViewerProtocolPolicy: allow-all
+          ViewerProtocolPolicy: redirect-to-https
         HttpVersion: http2
         PriceClass: PriceClass_100
         ViewerCertificate: 
           AcmCertificateArn: !Ref DomainCertificate
+          MinimumProtocolVersion: TLSv1.2_2018
+          SslSupportMethod: sni-only
