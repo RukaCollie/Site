@@ -88,6 +88,12 @@ Resources:
                 - /*
       Bucket: !Ref RootS3Bucket
 
+  DomainCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties: 
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+
   CloudfrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -117,5 +123,5 @@ Resources:
           ViewerProtocolPolicy: allow-all
         HttpVersion: http2
         PriceClass: PriceClass_100
-        ViewerCertificate: # TODO: potentially change this to ACM cert
-          CloudFrontDefaultCertificate: true
+        ViewerCertificate: 
+          AcmCertificateArn: !Ref DomainCertificate
