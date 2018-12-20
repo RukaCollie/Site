@@ -91,6 +91,8 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !Sub www.${DomainName}
         Origins:
         - DomainName: !GetAtt RootS3Bucket.DomainName
           Id: RootS3Origin
@@ -100,13 +102,9 @@ Resources:
         Comment: Cloudfront distribution for HTTPS support
         DefaultCacheBehavior:
           AllowedMethods:
-          - DELETE
           - GET
           - HEAD
           - OPTIONS
-          - PATCH
-          - POST
-          - PUT
           Compress: true
           TargetOriginId: RootS3Origin
           ForwardedValues:
