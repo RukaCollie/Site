@@ -49,7 +49,7 @@ Resources:
         Type: CNAME
         TTL: 900
         ResourceRecords:
-        - !GetAtt WwwRootS3Bucket.DomainName
+        - !GetAtt RedirectCloudFrontDistribution.DomainName
 
   RootS3Bucket:
     Type: AWS::S3::Bucket
@@ -67,7 +67,8 @@ Resources:
       BucketName: !Sub www.${DomainName}
       WebsiteConfiguration:
         RedirectAllRequestsTo:
-          HostName: !Ref RootS3Bucket
+          HostName: !Ref DomainName
+          Protocol: https
 
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -92,13 +93,7 @@ Resources:
     Properties:
       DistributionConfig:
         Aliases:
-          - !Sub www.${DomainName}
-        Origins:
-        - DomainName: !GetAtt RootS3Bucket.DomainName
-          Id: RootS3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: '' # TODO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
-        Enabled: true
+          - !Ref DomainName
         Comment: Cloudfront distribution for HTTPS support
         DefaultCacheBehavior:
           AllowedMethods:
@@ -112,9 +107,47 @@ Resources:
             Cookies:
               Forward: none
           ViewerProtocolPolicy: redirect-to-https
+        Enabled: true
         HttpVersion: http2
+        Origins:
+        - DomainName: !GetAtt RootS3Bucket.DomainName
+          Id: RootS3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: '' # TODO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
         PriceClass: PriceClass_100
-        ViewerCertificate: 
+        ViewerCertificate:
+          AcmCertificateArn: !Ref DomainCertificate
+          MinimumProtocolVersion: TLSv1.2_2018
+          SslSupportMethod: sni-only
+
+  # Because of www. we also need a cloudfront to redirect to the www bucket which will redirect to the APEX
+  RedirectCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Sub www.${DomainName}
+        Comment: www redirect
+        DefaultCacheBehavior:
+          TargetOriginId: WwwRootS3Origin
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+             Forward: none
+          ViewerProtocolPolicy: allow-all
+        Enabled: true
+        HttpVersion: http2
+        Origins:
+        - DomainName: !GetAtt WwwRootS3Bucket.DomainName
+          Id: WwwRootS3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: ''
+        PriceClass: PriceClass_100
+        ViewerCertificate:
           AcmCertificateArn: !Ref DomainCertificate
           MinimumProtocolVersion: TLSv1.2_2018
           SslSupportMethod: sni-only
