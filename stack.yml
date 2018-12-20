@@ -96,7 +96,7 @@ Resources:
         - DomainName: !GetAtt RootS3Bucket.DomainName
           Id: RootS3Origin
           S3OriginConfig:
-            OriginAccessIdentity: # TODO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
+            OriginAccessIdentity: '' # TODO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
         Enabled: true
         Comment: Cloudfront distribution for HTTPS support
         DefaultCacheBehavior:
