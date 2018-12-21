@@ -139,9 +139,7 @@ Resources:
         Enabled: true
         HttpVersion: http2
         Origins:
-        - DomainName: !Sub
-          - ${Domain}.${Endpoint}
-          - { Domain: !Ref RootS3Bucket, Endpoint: !FindInMap [RegionMap, !Ref AWS::Region, Suffix] }
+        - DomainName: !Join ['', [!Ref RootS3Bucket, !FindInMap [RegionMap, !Ref AWS::Region, Suffix]]]
           Id: RootS3Origin
           S3OriginConfig:
             OriginAccessIdentity: '' # TODO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
@@ -173,9 +171,7 @@ Resources:
         Enabled: true
         HttpVersion: http2
         Origins:
-        - DomainName: !Sub
-          - www.${Domain}.${Endpoint}
-          - { Domain: !Ref WwwRootS3Bucket, Endpoint: !FindInMap [RegionMap, !Ref AWS::Region, Suffix] }
+        - DomainName: !Join ['', [!Ref WwwRootS3Bucket, !FindInMap [RegionMap, !Ref AWS::Region, Suffix]]]
           Id: WwwRootS3Origin
           S3OriginConfig:
             OriginAccessIdentity: ''
