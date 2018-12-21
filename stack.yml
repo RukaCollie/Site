@@ -141,8 +141,10 @@ Resources:
         Origins:
         - DomainName: !Join ['', [!Ref RootS3Bucket, !FindInMap [RegionMap, !Ref 'AWS::Region', Suffix]]]
           Id: RootS3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: '' # TODO: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
+          CustomOriginConfig:
+            HTTPPort: '80'
+            HTTPSPort: '443'
+            OriginProtocolPolicy: http-only
         PriceClass: PriceClass_100
         ViewerCertificate:
           AcmCertificateArn: !Ref DomainCertificate
@@ -173,8 +175,10 @@ Resources:
         Origins:
         - DomainName: !Join ['', [!Ref WwwRootS3Bucket, !FindInMap [RegionMap, !Ref 'AWS::Region', Suffix]]]
           Id: WwwRootS3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: ''
+          CustomOriginConfig:
+            HTTPPort: '80'
+            HTTPSPort: '443'
+            OriginProtocolPolicy: http-only
         PriceClass: PriceClass_100
         ViewerCertificate:
           AcmCertificateArn: !Ref DomainCertificate
