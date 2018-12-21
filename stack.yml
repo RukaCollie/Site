@@ -10,7 +10,7 @@ Parameters:
     Description: ARN of ACM certificate fort the domain to host
     Type: String
   HostedZoneId:
-    Description: Hosted zone ID for S3 buckets in this region
+    Description: Hosted zone ID for CloudFront
     Type: String
     Default: Z2FDTNDATAQYW2
   VpcCidrBlock:
@@ -124,6 +124,7 @@ Resources:
         Aliases:
           - !Ref DomainName
         Comment: Cloudfront distribution for HTTPS support
+        DefaultRootObject: index.html
         DefaultCacheBehavior:
           AllowedMethods:
           - GET
