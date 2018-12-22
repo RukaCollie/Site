@@ -2,8 +2,8 @@
 
 if [[ $(git diff --name-only HEAD~1 $1) ]]; then
 	echo "Path test success - diff found"
-	exit 0
+	echo "##vso[task.setvariable variable=PathTest]1"
 else
 	echo "Path test fail - no diff detected"
-	exit 1
+	echo "##vso[task.setvariable variable=PathTest]0"
 fi
