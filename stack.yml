@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Description: Template to create the resources necessary for hosting a simple personal static website
 
 Parameters:
@@ -7,16 +7,12 @@ Parameters:
     Type: String
     Default: colliepa.ws
   DomainCertificate:
-    Description: ARN of ACM certificate fort the domain to host
+    Description: ARN of ACM certificate for the domain to host
     Type: String
   HostedZoneId:
     Description: Hosted zone ID for CloudFront
     Type: String
     Default: Z2FDTNDATAQYW2
-  VpcCidrBlock:
-    Description: CIDR Block to allocate VPC
-    Type: String
-    Default: 10.0.0.0/16
 
 Mappings:
   RegionMap:
@@ -48,20 +44,6 @@ Mappings:
       Suffix: .s3-website.eu-central-1.amazonaws.com
 
 Resources:
-  # may not need?
-  Vpc:
-    Type: AWS::EC2::VPC
-    Description: Test VPC (probably unnecessary right now)
-    Properties: 
-      CidrBlock: !Ref VpcCidrBlock
-
-  # may not need?
-  Dns: 
-    Type: AWS::Route53::HostedZone
-    Properties: 
-      HostedZoneConfig: 
-        Comment: Hosted zone for static site
-      Name: !Ref DomainName
 
   RecordSet:
     Type: AWS::Route53::RecordSetGroup
@@ -104,7 +86,7 @@ Resources:
     Properties:
       PolicyDocument:
         Id: S3OpenAccessPolicy
-        Version: 2012-10-17
+        Version: '2012-10-17'
         Statement:
           - Sid: PublicReadForGetBucketObjects
             Effect: Allow
